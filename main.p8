@@ -2,25 +2,44 @@ pico-8 cartridge // http://www.pico-8.com
 version 41
 __lua__
 player = { x=64, y=64, speed=2, score=0 }
+stars = {} 
 
 function _init()
     points = {}
-    for i=1,10 do
+    for i=1,8 do
         add(points, { x=rnd(128), y=rnd(128) })
+    end
+
+    for i=1,8 do
+        add(stars, { x=rnd(128), y=rnd(128), speed=rnd(2) })
     end
 end
 
 function _update()
-    if (btn(0)) player.x -= player.speed
-    if (btn(1)) player.x += player.speed
-    if (btn(2)) player.y -= player.speed
-    if (btn(3)) player.y += player.speed
+    if (btn(0)) player.x = max(0, player.x - player.speed)
+    if (btn(1)) player.x = min(128, player.x + player.speed)
+    if (btn(2)) player.y = max(0, player.y - player.speed)
+    if (btn(3)) player.y = min(128, player.y + player.speed)
 
     for point in all(points) do
-        if (abs(player.x - point.x) < 2 and abs(player.y - point.y) < 2) then
+        if (abs(player.x - point.x) < 4 and abs(player.y - point.y) < 4) then
             player.score += 1
             point.x = rnd(128)
             point.y = rnd(128)
+        end
+    end
+
+    for star in all(stars) do
+        star.y += star.speed 
+        if (star.y > 128) then 
+            star.y = 0
+            star.x = rnd(128) 
+            star.speed = rnd(2)
+        end
+        if (abs(player.x - star.x) < 4 and abs(player.y - star.y) < 4) then
+            player.score += 1
+            star.x = rnd(128)
+            star.y = rnd(128)
         end
     end
 end
@@ -30,6 +49,9 @@ function _draw()
     circfill(player.x, player.y, 2, 8)
     for point in all(points) do
         circfill(point.x, point.y, 1, 7)
+    end
+    for star in all(stars) do
+        circfill(star.x, star.y, 1, 7)
     end
     print("score: "..player.score, 0, 0, 7)
 end
