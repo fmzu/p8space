@@ -4,18 +4,31 @@ __lua__
 player = { x=64, y=64, speed=2, score=0 }
 stars = {} 
 
+frame_rate = 30
+game_time = frame_rate * 16 -- 60秒 * 16フレーム
+
 function _init()
     points = {}
     for i=1,8 do
         add(points, { x=rnd(128), y=rnd(128) })
     end
-
     for i=1,8 do
         add(stars, { x=rnd(128), y=rnd(128), speed=rnd(2) })
     end
 end
 
 function _update()
+    -- タイマーを更新
+    if game_time > 0 then
+        game_time -= 1
+    end
+    if game_time <= 0 then
+        -- タイマーが0になったらゲームを終了
+        game_over = true
+    end
+
+    if game_over then return end
+
     if (btn(0)) player.x = max(0, player.x - player.speed)
     if (btn(1)) player.x = min(128, player.x + player.speed)
     if (btn(2)) player.y = max(0, player.y - player.speed)
@@ -54,7 +67,9 @@ function _draw()
         circfill(star.x, star.y, 1, 7)
     end
     print("score: "..player.score, 0, 0, 7)
+    print("time: "..flr(game_time / frame_rate), 0, 8, 7)
 end
+
 
 __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
